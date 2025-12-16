@@ -27,8 +27,8 @@ jobs:
               git clone https://github.com/Kishore0310/Fooddelivery_backend
             fi
 
-            cd backend-sece-Aiml || exit 1
-            git pull origin master
+            cd Fooddelivery_backend || exit 1
+            git pull origin main
 
             echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
             echo "PORT=3000" >> .env
