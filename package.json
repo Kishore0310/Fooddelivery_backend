@@ -1,0 +1,28 @@
+{
+  "name": "backendfooddelivery",
+  "version": "1.0.0",
+  "description": "Backend API for Food Delivery App",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node scripts/seedData.js"
+  },
+  "keywords": [
+    "food",
+    "delivery",
+    "api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.0.1",
+    "uuid": "^9.0.1"
+  }
+}
