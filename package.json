@@ -7,7 +7,12 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "seed": "node scripts/seedData.js"
+    "seed": "node scripts/seedData.js",
+    "seed-menu": "node scripts/seedMenuItems.js",
+    "seed-menu-mongo": "node scripts/seedMenuItemsMongo.js",
+    "add-item": "node scripts/addItem.js",
+    "add-food": "node scripts/addFoodItem.js",
+    "add-food-simple": "node scripts/addFoodSimple.js"
   },
   "keywords": [
     "food",
@@ -26,3 +31,6 @@
     "uuid": "^9.0.1"
   }
 }
+
+
+

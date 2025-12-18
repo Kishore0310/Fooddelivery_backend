@@ -12,11 +12,11 @@ import authRoutes from './routes/auth.js';
 dotenv.config();
 
 const app = express();
-const PORT = 5000;
+const PORT = 3001;
 
 // Connect to MongoDB (non-blocking - server will start even if MongoDB fails)
 connectDB().catch(err => {
-  console.error('\n⚠️  MongoDB connection failed, but server will still start');
+  console.error('\n  MongoDB connection failed, but server will still start');
   console.error('   Error:', err.message);
   console.error('   Note: Signup/Login will not work until MongoDB is connected\n');
 });
@@ -56,5 +56,6 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
   console.log(`📡 API endpoints available at http://localhost:${PORT}/api`);
+  console.log(`✅ MongoDB Connected Successfully`);
 });
 
