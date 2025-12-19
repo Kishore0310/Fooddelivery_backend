@@ -84,6 +84,20 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Food Delivery API is running' });
 });
 
+// Seed restaurants endpoint
+app.post('/api/seed-restaurants', async (req, res) => {
+  try {
+    await Restaurant.deleteMany({});
+    const restaurantsData = JSON.parse(
+      fs.readFileSync(path.join(__dirname, 'data/restaurants.json'), 'utf8')
+    );
+    await Restaurant.insertMany(restaurantsData);
+    res.json({ message: `Successfully seeded ${restaurantsData.length} restaurants` });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to seed restaurants', message: error.message });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
