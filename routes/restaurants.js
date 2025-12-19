@@ -1,34 +1,28 @@
 import express from 'express';
-import { readData } from '../utils/dataStorage.js';
+import Restaurant from '../models/Restaurant.js';
 
 const router = express.Router();
 
 // GET /api/restaurants - Get all restaurants
 router.get('/', async (req, res) => {
   try {
-    const restaurants = await readData('restaurants');
     const { search, category } = req.query;
+    let query = {};
 
-    let filtered = restaurants;
-
-    // Filter by search term
+    // Build search query
     if (search) {
-      const searchLower = search.toLowerCase();
-      filtered = filtered.filter(r =>
-        r.name.toLowerCase().includes(searchLower) ||
-        r.cuisine.toLowerCase().includes(searchLower)
-      );
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { cuisine: { $regex: search, $options: 'i' } }
+      ];
     }
 
-    // Filter by category
     if (category) {
-      const categoryLower = category.toLowerCase();
-      filtered = filtered.filter(r =>
-        r.cuisine.toLowerCase().includes(categoryLower)
-      );
+      query.cuisine = { $regex: category, $options: 'i' };
     }
 
-    res.json(filtered);
+    const restaurants = await Restaurant.find(query).sort({ promoted: -1, rating: -1 });
+    res.json(restaurants);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch restaurants', message: error.message });
   }
@@ -37,8 +31,7 @@ router.get('/', async (req, res) => {
 // GET /api/restaurants/:id - Get single restaurant
 router.get('/:id', async (req, res) => {
   try {
-    const restaurants = await readData('restaurants');
-    const restaurant = restaurants.find(r => r.id === parseInt(req.params.id));
+    const restaurant = await Restaurant.findOne({ id: parseInt(req.params.id) });
 
     if (!restaurant) {
       return res.status(404).json({ error: 'Restaurant not found' });

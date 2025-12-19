@@ -8,14 +8,35 @@ import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/orders.js';
 import categoryRoutes from './routes/categories.js';
 import authRoutes from './routes/auth.js';
+import Restaurant from './models/Restaurant.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Connect to MongoDB (non-blocking - server will start even if MongoDB fails)
-connectDB().catch(err => {
+// Connect to MongoDB and seed data
+connectDB().then(async () => {
+  // Check if restaurants exist, if not seed them
+  const restaurantCount = await Restaurant.countDocuments();
+  if (restaurantCount === 0) {
+    try {
+      const restaurantsData = JSON.parse(
+        fs.readFileSync(path.join(__dirname, 'data/restaurants.json'), 'utf8')
+      );
+      await Restaurant.insertMany(restaurantsData);
+      console.log(`✅ Seeded ${restaurantsData.length} restaurants`);
+    } catch (error) {
+      console.error('❌ Error seeding restaurants:', error.message);
+    }
+  }
+}).catch(err => {
   console.error('\n  MongoDB connection failed, but server will still start');
   console.error('   Error:', err.message);
   console.error('   Note: Signup/Login will not work until MongoDB is connected\n');
