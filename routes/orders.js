@@ -32,9 +32,15 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // POST /api/orders - Create new order
 router.post('/', authenticateToken, async (req, res) => {
   try {
+    console.log('Order request received:', {
+      userId: req.user._id,
+      body: req.body
+    });
+
     const { cart, deliveryAddress, paymentMethod } = req.body;
 
     if (!cart || cart.length === 0) {
+      console.log('Cart is empty');
       return res.status(400).json({ error: 'Cart is empty' });
     }
 
@@ -43,7 +49,9 @@ router.post('/', authenticateToken, async (req, res) => {
     const platformFee = 2;
     const total = itemTotal + deliveryFee + platformFee;
 
-    const order = new Order({
+    console.log('Order calculations:', { itemTotal, deliveryFee, platformFee, total });
+
+    const orderData = {
       userId: req.user._id,
       items: cart,
       itemTotal,
@@ -53,13 +61,20 @@ router.post('/', authenticateToken, async (req, res) => {
       deliveryAddress: deliveryAddress || 'Not provided',
       paymentMethod: paymentMethod || 'Cash on Delivery',
       estimatedDelivery: new Date(Date.now() + 30 * 60 * 1000)
-    });
+    };
 
+    console.log('Creating order with data:', orderData);
+    const order = new Order(orderData);
     const savedOrder = await order.save();
+    console.log('Order saved successfully:', savedOrder._id);
 
     res.status(201).json({ message: 'Order placed successfully', order: savedOrder });
   } catch (error) {
-    console.error('Order error:', error);
+    console.error('Order creation failed:', {
+      error: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({ error: 'Failed to create order', message: error.message });
   }
 });
