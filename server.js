@@ -34,6 +34,23 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/auth', authRoutes);
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Food Delivery API is running!',
+    status: 'OK',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      restaurants: '/api/restaurants',
+      menu: '/api/menu',
+      cart: '/api/cart',
+      orders: '/api/orders',
+      categories: '/api/categories'
+    }
+  });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Food Delivery API is running' });
