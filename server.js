@@ -12,7 +12,7 @@ import authRoutes from './routes/auth.js';
 dotenv.config();
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // Connect to MongoDB (non-blocking - server will start even if MongoDB fails)
 connectDB().catch(err => {
