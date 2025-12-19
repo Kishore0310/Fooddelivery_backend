@@ -108,6 +108,15 @@ app.get('/api/debug', async (req, res) => {
   }
 });
 
+// Test order endpoint
+app.post('/api/test-order', (req, res) => {
+  res.json({ 
+    message: 'Order endpoint is working',
+    body: req.body,
+    headers: req.headers
+  });
+});
+
 // Seed restaurants endpoint (GET for easy browser access)
 app.get('/api/seed-restaurants', async (req, res) => {
   try {
