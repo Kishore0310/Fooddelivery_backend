@@ -6,16 +6,10 @@ const orderSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  items: [{
-    id: Number,
-    name: String,
-    price: Number,
-    quantity: Number,
-    restaurantId: Number,
-    restaurantName: String,
-    veg: Boolean,
-    image: String
-  }],
+  items: {
+    type: mongoose.Schema.Types.Mixed,
+    required: true
+  },
   itemTotal: {
     type: Number,
     required: true
