@@ -7,21 +7,7 @@ const router = express.Router();
 // GET /api/orders - Get all orders for authenticated user
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    let orders;
-    try {
-      orders = await Order.find({ userId: req.user._id }).sort({ createdAt: -1 });
-    } catch (dbError) {
-      const fs = await import('fs/promises');
-      const path = await import('path');
-      const ordersFile = path.join(process.cwd(), 'data', 'orders.json');
-      try {
-        const data = await fs.readFile(ordersFile, 'utf8');
-        const allOrders = JSON.parse(data);
-        orders = allOrders.filter(o => o.userId === req.user._id.toString());
-      } catch (e) {
-        orders = [];
-      }
-    }
+    const orders = await Order.find({ userId: req.user._id }).sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch orders', message: error.message });
@@ -57,7 +43,7 @@ router.post('/', authenticateToken, async (req, res) => {
     const platformFee = 2;
     const total = itemTotal + deliveryFee + platformFee;
 
-    const orderData = {
+    const order = new Order({
       userId: req.user._id,
       items: cart,
       itemTotal,
@@ -66,28 +52,10 @@ router.post('/', authenticateToken, async (req, res) => {
       total,
       deliveryAddress: deliveryAddress || 'Not provided',
       paymentMethod: paymentMethod || 'Cash on Delivery',
-      status: 'Placed',
-      estimatedDelivery: new Date(Date.now() + 30 * 60 * 1000),
-      createdAt: new Date()
-    };
+      estimatedDelivery: new Date(Date.now() + 30 * 60 * 1000)
+    });
 
-    let savedOrder;
-    try {
-      const order = new Order(orderData);
-      savedOrder = await order.save();
-    } catch (dbError) {
-      const fs = await import('fs/promises');
-      const path = await import('path');
-      const ordersFile = path.join(process.cwd(), 'data', 'orders.json');
-      let orders = [];
-      try {
-        const data = await fs.readFile(ordersFile, 'utf8');
-        orders = JSON.parse(data);
-      } catch (e) {}
-      savedOrder = { _id: Date.now().toString(), ...orderData };
-      orders.push(savedOrder);
-      await fs.writeFile(ordersFile, JSON.stringify(orders, null, 2));
-    }
+    const savedOrder = await order.save();
 
     res.status(201).json({ message: 'Order placed successfully', order: savedOrder });
   } catch (error) {

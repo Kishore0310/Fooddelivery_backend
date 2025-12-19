@@ -70,15 +70,21 @@ router.post('/login', async (req, res) => {
 
     // Find user by email (explicitly select password field)
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    console.log('User found:', user ? 'Yes' : 'No');
     if (!user) {
-      console.log('Login failed: User not found');
+      console.log('Login failed: User not found for email:', email);
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    console.log('Stored password hash:', user.password ? 'exists' : 'missing');
+    console.log('Password to compare:', password ? 'provided' : 'missing');
+    
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Password match result:', isMatch);
+    
     if (!isMatch) {
-      console.log('Login failed: Password mismatch');
+      console.log('Login failed: Password mismatch for user:', email);
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
