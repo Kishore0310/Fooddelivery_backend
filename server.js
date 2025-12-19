@@ -84,6 +84,24 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Food Delivery API is running' });
 });
 
+// Debug endpoint
+app.get('/api/debug', async (req, res) => {
+  try {
+    const count = await Restaurant.countDocuments();
+    const restaurants = await Restaurant.find().limit(3);
+    res.json({ 
+      restaurantCount: count,
+      sampleRestaurants: restaurants,
+      mongoConnected: true
+    });
+  } catch (error) {
+    res.json({ 
+      error: error.message,
+      mongoConnected: false
+    });
+  }
+});
+
 // Seed restaurants endpoint
 app.post('/api/seed-restaurants', async (req, res) => {
   try {
