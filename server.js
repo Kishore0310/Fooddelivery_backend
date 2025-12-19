@@ -23,23 +23,29 @@ const PORT = process.env.PORT || 3001;
 
 // Connect to MongoDB and seed data
 connectDB().then(async () => {
-  // Check if restaurants exist, if not seed them
-  const restaurantCount = await Restaurant.countDocuments();
-  if (restaurantCount === 0) {
-    try {
+  console.log('✅ MongoDB Connected - Checking restaurants...');
+  
+  // Always try to seed restaurants on startup
+  try {
+    const restaurantCount = await Restaurant.countDocuments();
+    console.log(`📊 Current restaurant count: ${restaurantCount}`);
+    
+    if (restaurantCount === 0) {
       const restaurantsData = JSON.parse(
         fs.readFileSync(path.join(__dirname, 'data/restaurants.json'), 'utf8')
       );
       await Restaurant.insertMany(restaurantsData);
       console.log(`✅ Seeded ${restaurantsData.length} restaurants`);
-    } catch (error) {
-      console.error('❌ Error seeding restaurants:', error.message);
+    } else {
+      console.log('✅ Restaurants already exist in database');
     }
+  } catch (error) {
+    console.error('❌ Error with restaurants:', error.message);
   }
 }).catch(err => {
-  console.error('\n  MongoDB connection failed, but server will still start');
+  console.error('\n❌ MongoDB connection failed, but server will still start');
   console.error('   Error:', err.message);
-  console.error('   Note: Signup/Login will not work until MongoDB is connected\n');
+  console.error('   Note: Some features will not work until MongoDB is connected\n');
 });
 
 // Middleware
@@ -102,7 +108,29 @@ app.get('/api/debug', async (req, res) => {
   }
 });
 
-// Seed restaurants endpoint
+// Seed restaurants endpoint (GET for easy browser access)
+app.get('/api/seed-restaurants', async (req, res) => {
+  try {
+    await Restaurant.deleteMany({});
+    const restaurantsData = JSON.parse(
+      fs.readFileSync(path.join(__dirname, 'data/restaurants.json'), 'utf8')
+    );
+    await Restaurant.insertMany(restaurantsData);
+    res.json({ 
+      success: true,
+      message: `Successfully seeded ${restaurantsData.length} restaurants`,
+      restaurants: restaurantsData.map(r => ({ id: r.id, name: r.name }))
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to seed restaurants', 
+      message: error.message 
+    });
+  }
+});
+
+// POST version for programmatic access
 app.post('/api/seed-restaurants', async (req, res) => {
   try {
     await Restaurant.deleteMany({});
